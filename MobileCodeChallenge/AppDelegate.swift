@@ -13,9 +13,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
+    var coreDataStack: CoreDataStack!
+    var reachManager: ReachabilityManager!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // setup reachability manager
+        let reachManager = ReachabilityManager()
+        
+        // setup core data stack
+        let coreDataStack = CoreDataStack(readyHandler: { [weak self] in
+            
+            guard let strongSelf = self else { return }
+            
+            guard let vc = strongSelf.window?.rootViewController as? InitialViewController else { return }
+            vc.coreDataStack = strongSelf.coreDataStack
+            vc.reachManager = strongSelf.reachManager
+            
+            // load main view controller
+            vc.loadMainViewController()
+            
+        })
+        coreDataStack.initializeCoreDataStack()
+        
+        self.coreDataStack = coreDataStack
+        self.reachManager = reachManager
+        
         return true
     }
 
